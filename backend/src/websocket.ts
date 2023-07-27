@@ -31,6 +31,8 @@ export const websocket = {
 
       console.log('Socket connected', room);
 
+      socket.to(room).emit('userJoined', socket.id);
+
       socket.on('offer', ({ offer }) => {
         socket.to(room).emit('message', { type: 'offer', offer });
       });

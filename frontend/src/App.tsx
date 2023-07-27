@@ -1,130 +1,65 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useState, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import Select, { SingleValue } from 'react-select';
 
-import { useWebsocket } from './hooks/useWebsocket';
-import { IOption } from './interface/IOption';
+import { HostRoom } from './components/HostRoom';
+import { JoinRoom } from './components/JoinRoom';
 
-const App = () => {
-  const [videoOptions, setVideoOptions] = useState<IOption[]>([]);
-  const [audioOptions, setAudioOptions] = useState<IOption[]>([]);
+type Page = 'lobby' | 'host' | 'join';
 
-  const streamRef = useRef<HTMLVideoElement | null>(null);
+const roomId = uuidv4();
 
-  const { connectWebSocket, socketConnected } = useWebsocket();
+export const App = () => {
+  const [page, setPage] = useState<Page>('lobby');
+  const [error, setError] = useState(false);
 
-  const getUserDevices = async (type: MediaDeviceKind) => {
-    try {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      return devices.filter((device) => device.kind === type);
-    } catch (error) {
-      console.log(error);
-      return [];
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const joinRoomHandler = () => {
+    if (!inputRef.current) return;
+
+    if (!inputRef.current.value) {
+      setError(true);
+      return;
     }
+    setPage('join');
   };
-
-  const getUserMedia = useCallback(async () => {
-    const constraints = {
-      video: true,
-      audio: true,
-    };
-
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
-      if (streamRef.current) {
-        streamRef.current.srcObject = stream;
-        await streamRef.current.play();
-        const videoDevices = await getUserDevices('videoinput');
-        const audioDevices = await getUserDevices('audioinput');
-        setVideoOptions(
-          videoDevices.map((device) => {
-            return {
-              label: device.label.split('(')[0],
-              value: device.deviceId,
-            };
-          })
-        );
-        setAudioOptions(
-          audioDevices.map((device) => {
-            return {
-              label: device.label.split('(')[0],
-              value: device.deviceId,
-            };
-          })
-        );
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }, []);
-
-  const changeVideo = async (newValue: SingleValue<IOption>) => {
-    if (streamRef.current) {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { deviceId: { exact: newValue?.value } },
-      });
-      streamRef.current.srcObject = stream;
-      await streamRef.current.play();
-
-      const devices = await getUserDevices('videoinput');
-
-      setVideoOptions(
-        devices.map((device) => {
-          return {
-            label: device.label.split('(')[0],
-            value: device.deviceId,
-          };
-        })
-      );
-    }
-  };
-
-  const changeAudio = async (newValue: SingleValue<IOption>) => {
-    if (streamRef.current) {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: { deviceId: { exact: newValue?.value } },
-      });
-      streamRef.current.srcObject = stream;
-      await streamRef.current.play();
-
-      const devices = await getUserDevices('audioinput');
-
-      setAudioOptions(
-        devices.map((device) => {
-          return {
-            label: device.label.split('(')[0],
-            value: device.deviceId,
-          };
-        })
-      );
-    }
-  };
-
-  const room = uuidv4();
-  useEffect(() => {
-    if (!socketConnected) {
-      connectWebSocket(room);
-    }
-  }, [room, socketConnected, connectWebSocket]);
-
-  useEffect(() => {
-    getUserMedia();
-  }, [getUserMedia]);
 
   return (
-    <div className='h-screen w-screen relative'>
-      <video
-        muted
-        playsInline
-        ref={streamRef}
-        className='h-full w-full absolute top-0 left-0'
-      ></video>
-      <div className='absolute bottom-0 left-0 h-20 p-4 flex gap-4'>
-        <Select options={videoOptions} onChange={changeVideo} />
-        {/* <Select options={audioOptions} onChange={changeAudio} /> */}
-      </div>
+    <div className='h-screen w-screen flex items-center justify-center bg-indigo-950 text-white'>
+      {page === 'lobby' && (
+        <div className='w-full p-4 flex flex-col md:w-fit'>
+          {error && (
+            <span className='text-red-600 mb-2 font-semibold text-md'>
+              You need to provide a room id!
+            </span>
+          )}
+          <input
+            autoFocus
+            type='text'
+            ref={inputRef}
+            placeholder='Room ID'
+            className='w-full rounded outline-none text-black px-4 py-2 md:w-80'
+          />
+          <div className='w-full flex justify-between mt-5'>
+            <button
+              className='px-4 py-2 bg-indigo-700 rounded'
+              onClick={() => setPage('host')}
+            >
+              Host Room
+            </button>
+            <button
+              className='px-4 py-2 bg-indigo-700 rounded'
+              onClick={joinRoomHandler}
+            >
+              Join Room
+            </button>
+          </div>
+        </div>
+      )}
+      {page === 'host' && <HostRoom roomId={roomId} />}
+      {page === 'join' && (
+        <JoinRoom roomId={inputRef.current ? inputRef.current.value : ''} />
+      )}
     </div>
   );
 };
-
-export default App;

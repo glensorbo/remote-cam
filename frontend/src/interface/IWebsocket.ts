@@ -1,3 +1,6 @@
+import { IAnswer } from './IAnswer';
+import { IOffer } from './IOffer';
+
 export interface ClientToServerEvents {
   offer: (data: unknown) => void;
   candidate: (data: unknown) => void;
@@ -5,5 +8,7 @@ export interface ClientToServerEvents {
 }
 
 export interface ServerToClientEvents {
-  message: (message: unknown) => void;
+  userJoined: (id: string) => void;
+  offer: (message: IOffer) => void;
+  answer: (message: IAnswer) => void;
 }

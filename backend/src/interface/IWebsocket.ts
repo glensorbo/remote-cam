@@ -1,5 +1,5 @@
 export interface ServerToClientEvents {
-  userJoin: (id: string) => void;
+  userJoined: (id: string) => void;
   message: (message: any) => void;
 }
 
