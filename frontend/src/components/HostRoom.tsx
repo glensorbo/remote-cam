@@ -64,7 +64,7 @@ export const HostRoom: React.FC = () => {
         video: { deviceId: { exact: newValue?.value } },
       });
       videoRef.current.srcObject = stream;
-      await videoRef.current.play();
+      webRTC.changeSource(stream);
 
       const devices = await getUserDevices('videoinput');
 

@@ -20,6 +20,7 @@ interface WebRTC {
   ) => Promise<RTCSessionDescriptionInit>;
   addAnswer: (answer: RTCSessionDescriptionInit) => void;
   addIceCandidate: (candidate: RTCIceCandidateInit) => void;
+  changeSource: (stream: MediaStream) => void;
 }
 
 export const webRTC: WebRTC = {
@@ -77,5 +78,15 @@ export const webRTC: WebRTC = {
   addIceCandidate: (candidate) => {
     console.log('Adding ice');
     webRTC.peerConnection.addIceCandidate(candidate);
+  },
+  changeSource: (stream) => {
+    // if (webRTC.localStream) {
+    //   webRTC.localStream.getTracks().forEach((track) => {
+    //     if (webRTC.peerConnection && webRTC.localStream) {
+    //       webRTC.peerConnection.removeTrack(track)
+    //     }
+    //   });
+    // }
+    //       webRTC.peerConnection.addTrack(track, stream);
   },
 };
