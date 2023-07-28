@@ -1,22 +1,17 @@
 import Select, { SingleValue } from 'react-select';
 import { useEffect, useRef, useState, useCallback } from 'react';
 
-import { useWebsocket } from '../hooks/useWebsocket';
 import { IOption } from '../interface/IOption';
+import { websocket } from '../util/websocket';
+import { webRTC } from '../util/webRTC';
 
-type Props = {
-  roomId: string;
-};
-
-export const HostRoom: React.FC<Props> = ({ roomId }) => {
+export const HostRoom: React.FC = () => {
   const [videoOptions, setVideoOptions] = useState<IOption[]>([]);
   const [audioOptions, setAudioOptions] = useState<IOption[]>([]);
 
   const [showControls, setShowControls] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
-
-  const { connectWebSocket, socketConnected } = useWebsocket();
 
   const getUserDevices = async (type: MediaDeviceKind) => {
     try {
@@ -38,7 +33,7 @@ export const HostRoom: React.FC<Props> = ({ roomId }) => {
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        await videoRef.current.play();
+        webRTC.setLocalStream(stream);
         const videoDevices = await getUserDevices('videoinput');
         const audioDevices = await getUserDevices('audioinput');
         setVideoOptions(
@@ -106,14 +101,8 @@ export const HostRoom: React.FC<Props> = ({ roomId }) => {
   };
 
   const copyRoomId = async () => {
-    await navigator.clipboard.writeText(roomId);
+    await navigator.clipboard.writeText(websocket.roomId);
   };
-
-  useEffect(() => {
-    if (!socketConnected) {
-      connectWebSocket(roomId);
-    }
-  }, [roomId, socketConnected, connectWebSocket]);
 
   useEffect(() => {
     getUserMedia();
@@ -123,6 +112,7 @@ export const HostRoom: React.FC<Props> = ({ roomId }) => {
     <div className='h-screen w-screen relative text-black'>
       <video
         muted
+        autoPlay
         playsInline
         ref={videoRef}
         onClick={() => setShowControls((state) => !state)}

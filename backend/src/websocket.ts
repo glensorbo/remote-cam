@@ -25,24 +25,24 @@ export const websocket = {
     });
 
     io.on('connection', async (socket) => {
-      const room = socket.handshake.auth.room;
+      console.log('Socket connected, id:', socket.id);
 
-      await socket.join(room);
-
-      console.log('Socket connected', room);
-
-      socket.to(room).emit('userJoined', socket.id);
-
-      socket.on('offer', ({ offer }) => {
-        socket.to(room).emit('message', { type: 'offer', offer });
+      socket.on('join_room', async (roomId) => {
+        await socket.join(roomId);
+        socket.to(roomId).emit('userJoined', socket.id);
+        console.log('Socket connected to room', roomId);
       });
 
-      socket.on('candidate', ({ candidate }) => {
-        socket.to(room).emit('message', { type: 'candidate', candidate });
+      socket.on('offer', ({ offer, roomId }) => {
+        socket.to(roomId).emit('offer', { type: 'offer', offer });
       });
 
-      socket.on('answer', ({ answer }) => {
-        socket.to(room).emit('message', { type: 'answer', answer });
+      socket.on('answer', ({ answer, roomId }) => {
+        socket.to(roomId).emit('answer', { type: 'answer', answer });
+      });
+
+      socket.on('candidate', ({ candidate, roomId }) => {
+        socket.to(roomId).emit('candidate', { type: 'candidate', candidate });
       });
     });
   },

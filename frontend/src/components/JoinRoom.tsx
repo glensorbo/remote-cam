@@ -1,19 +1,15 @@
-import { useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 
-import { useWebsocket } from '../hooks/useWebsocket';
+import { webRTC } from '../util/webRTC';
 
-type Props = {
-  roomId: string;
-};
-
-export const JoinRoom: React.FC<Props> = ({ roomId }) => {
-  const { connectWebSocket, socketConnected } = useWebsocket();
+export const JoinRoom = () => {
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    if (!socketConnected) {
-      connectWebSocket(roomId);
+    if (videoRef.current) {
+      videoRef.current.srcObject = webRTC.remoteStream;
     }
-  }, [roomId, socketConnected, connectWebSocket]);
+  }, []);
 
-  return <div>{roomId}</div>;
+  return <video ref={videoRef} playsInline autoPlay muted></video>;
 };
