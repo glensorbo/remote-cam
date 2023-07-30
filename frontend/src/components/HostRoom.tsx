@@ -9,8 +9,6 @@ export const HostRoom: React.FC = () => {
   const [videoOptions, setVideoOptions] = useState<IOption[]>([]);
   const [audioOptions, setAudioOptions] = useState<IOption[]>([]);
 
-  const [showControls, setShowControls] = useState(false);
-
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   const getUserDevices = async (type: MediaDeviceKind) => {
@@ -24,8 +22,12 @@ export const HostRoom: React.FC = () => {
   };
 
   const getUserMedia = useCallback(async () => {
-    const constraints = {
-      video: true,
+    const constraints: MediaStreamConstraints = {
+      video: {
+        facingMode: 'landscape',
+        width: { ideal: 1920 },
+        height: { ideal: 1080 },
+      },
       audio: true,
     };
 
@@ -84,8 +86,10 @@ export const HostRoom: React.FC = () => {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: { deviceId: { exact: newValue?.value } },
       });
-      videoRef.current.srcObject = stream;
-      await videoRef.current.play();
+      // videoRef.current.srcObject = stream;
+      // await videoRef.current.play();
+
+      webRTC.changeSource(stream);
 
       const devices = await getUserDevices('audioinput');
 
@@ -109,35 +113,34 @@ export const HostRoom: React.FC = () => {
   }, [getUserMedia]);
 
   return (
-    <div className='h-screen w-screen relative text-black'>
+    <div className='h-screen w-screen flex flex-col items-center p-4 gap-4 text-black'>
+      <div className='flex flex-col gap-4 w-full sm:w-[480px]'>
+        <Select
+          options={videoOptions}
+          onChange={changeVideo}
+          className='w-full'
+        />
+        <Select
+          options={audioOptions}
+          onChange={changeAudio}
+          className='w-full'
+        />
+        <button
+          className='w-full py-2 rounded ml-auto bg-indigo-900 text-white'
+          onClick={copyRoomId}
+        >
+          Copy RoomId
+        </button>
+      </div>
+
       <video
         muted
+        controls
         autoPlay
         playsInline
         ref={videoRef}
-        onClick={() => setShowControls((state) => !state)}
-        className='h-screen w-screen object-cover'
+        className='w-screen sm:w-[480px] object-center'
       ></video>
-      {showControls && (
-        <div className='absolute top-0 left-0 h-20 p-4 flex gap-4 w-full'>
-          <Select
-            options={videoOptions}
-            onChange={changeVideo}
-            className='w-1/2 sm:w-52'
-          />
-          <Select
-            options={audioOptions}
-            onChange={changeAudio}
-            className='w-1/2 sm:w-52'
-          />
-          <button
-            className='px-4 rounded ml-auto bg-indigo-900 text-white'
-            onClick={copyRoomId}
-          >
-            Copy RoomId
-          </button>
-        </div>
-      )}
     </div>
   );
 };

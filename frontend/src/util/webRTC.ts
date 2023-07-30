@@ -11,7 +11,7 @@ const servers = {
 interface WebRTC {
   peerConnection: RTCPeerConnection;
   remoteStream: MediaStream;
-  localStream: MediaStream | null;
+  localStream: MediaStream;
   setLocalStream: (stream: MediaStream) => void;
   createPeerConnection: () => void;
   createOffer: () => Promise<RTCSessionDescriptionInit>;
@@ -26,18 +26,14 @@ interface WebRTC {
 export const webRTC: WebRTC = {
   peerConnection: new RTCPeerConnection(servers),
   remoteStream: new MediaStream(),
-  localStream: null,
+  localStream: new MediaStream(),
   setLocalStream: (stream: MediaStream) => {
     webRTC.localStream = stream;
   },
   createPeerConnection: async () => {
-    if (webRTC.localStream) {
-      webRTC.localStream.getTracks().forEach((track) => {
-        if (webRTC.peerConnection && webRTC.localStream) {
-          webRTC.peerConnection.addTrack(track, webRTC.localStream);
-        }
-      });
-    }
+    webRTC.localStream.getTracks().forEach((track) => {
+      webRTC.peerConnection.addTrack(track, webRTC.localStream);
+    });
 
     webRTC.peerConnection.ontrack = (event) => {
       event.streams[0].getTracks().forEach((track) => {
@@ -76,17 +72,29 @@ export const webRTC: WebRTC = {
     }
   },
   addIceCandidate: (candidate) => {
-    console.log('Adding ice');
     webRTC.peerConnection.addIceCandidate(candidate);
   },
   changeSource: (stream) => {
-    // if (webRTC.localStream) {
-    //   webRTC.localStream.getTracks().forEach((track) => {
-    //     if (webRTC.peerConnection && webRTC.localStream) {
-    //       webRTC.peerConnection.removeTrack(track)
-    //     }
-    //   });
-    // }
-    //       webRTC.peerConnection.addTrack(track, stream);
+    const [videoTrack] = stream.getVideoTracks();
+    console.log(videoTrack);
+
+    const [audioTrack] = stream.getAudioTracks();
+    console.log(audioTrack);
+
+    const senders = webRTC.peerConnection.getSenders();
+
+    if (videoTrack) {
+      const video = senders.find(
+        (source) => source.track?.kind === videoTrack.kind
+      );
+      video?.replaceTrack(videoTrack);
+    }
+
+    if (audioTrack) {
+      const audio = senders.find(
+        (source) => source.track?.kind === audioTrack.kind
+      );
+      audio?.replaceTrack(audioTrack);
+    }
   },
 };
