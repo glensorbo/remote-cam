@@ -11,13 +11,5 @@ export const JoinRoom = () => {
     }
   }, []);
 
-  return (
-    <video
-      controls
-      autoPlay
-      playsInline
-      ref={videoRef}
-      className='h-screen w-screen object-cover'
-    ></video>
-  );
+  return <video controls autoPlay playsInline ref={videoRef}></video>;
 };

@@ -24,9 +24,8 @@ export const HostRoom: React.FC = () => {
   const getUserMedia = useCallback(async () => {
     const constraints: MediaStreamConstraints = {
       video: {
-        facingMode: 'landscape',
-        width: { ideal: 1920 },
-        height: { ideal: 1080 },
+        width: { min: 1920 },
+        height: { min: 1080 },
       },
       audio: true,
     };
@@ -63,7 +62,11 @@ export const HostRoom: React.FC = () => {
   const changeVideo = async (newValue: SingleValue<IOption>) => {
     if (videoRef.current) {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { deviceId: { exact: newValue?.value } },
+        video: {
+          deviceId: { exact: newValue?.value },
+          width: { min: 1920 },
+          height: { min: 1080 },
+        },
       });
       videoRef.current.srcObject = stream;
       webRTC.changeSource(stream);
@@ -86,8 +89,6 @@ export const HostRoom: React.FC = () => {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: { deviceId: { exact: newValue?.value } },
       });
-      // videoRef.current.srcObject = stream;
-      // await videoRef.current.play();
 
       webRTC.changeSource(stream);
 
@@ -139,7 +140,8 @@ export const HostRoom: React.FC = () => {
         autoPlay
         playsInline
         ref={videoRef}
-        className='w-screen sm:w-[480px] object-center'
+        // className='w-screen sm:w-[480px] object-center'
+        // className='object-center'
       ></video>
     </div>
   );
