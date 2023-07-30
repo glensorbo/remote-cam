@@ -10,7 +10,6 @@ WORKDIR /usr/app
 COPY package* ./
 RUN npm ci
 # COPY ./.env ./
-COPY ./public ./build/public
 COPY --from=builder ./usr/app/build ./build
-EXPOSE 5561
+EXPOSE 5161
 CMD ["npm", "start"]

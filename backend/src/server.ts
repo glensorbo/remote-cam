@@ -2,7 +2,7 @@ import express, { Express } from 'express';
 import { websocket } from './websocket';
 
 const app: Express = express();
-const port = 5561;
+const port = 5161;
 
 const server = app.listen(port, async () => {
   try {
