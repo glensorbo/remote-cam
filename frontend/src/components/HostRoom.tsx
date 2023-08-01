@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { IOption } from '../interface/IOption';
 import { websocket } from '../util/websocket';
 import { webRTC } from '../util/webRTC';
+import { frontendBaseUrl } from '../hooks/useWebsocket';
 
 export const HostRoom: React.FC = () => {
   const [videoOptions, setVideoOptions] = useState<IOption[]>([]);
@@ -109,6 +110,11 @@ export const HostRoom: React.FC = () => {
     await navigator.clipboard.writeText(websocket.roomId);
   };
 
+  const copyRoomURL = async () => {
+    const room = websocket.roomId;
+    await navigator.clipboard.writeText(`${frontendBaseUrl}/?room=${room}`);
+  };
+
   useEffect(() => {
     getUserMedia();
   }, [getUserMedia]);
@@ -126,12 +132,20 @@ export const HostRoom: React.FC = () => {
           onChange={changeAudio}
           className='w-full'
         />
-        <button
-          className='w-full py-2 rounded ml-auto bg-indigo-900 text-white'
-          onClick={copyRoomId}
-        >
-          Copy RoomId
-        </button>
+        <div className='flex justify-between gap-4'>
+          <button
+            className='w-full py-2 rounded ml-auto bg-indigo-900 text-white'
+            onClick={copyRoomId}
+          >
+            Copy RoomId
+          </button>
+          <button
+            className='w-full py-2 rounded ml-auto bg-indigo-900 text-white'
+            onClick={copyRoomURL}
+          >
+            Copy Room URL
+          </button>
+        </div>
       </div>
 
       <video

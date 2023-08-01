@@ -18,8 +18,14 @@ export const App = () => {
     websocket.joinRoom(uuidv4());
   };
 
-  const joinRoomHandler = () => {
+  const joinRoomHandler = (room?: string) => {
     if (!inputRef.current) return;
+
+    if (room) {
+      websocket.joinRoom(room);
+      setPage('join');
+      return;
+    }
 
     if (!inputRef.current.value) {
       setError(true);
@@ -31,6 +37,12 @@ export const App = () => {
 
   useEffect(() => {
     websocket.connect();
+
+    const queryParameters = new URLSearchParams(window.location.search);
+    const room = queryParameters.get('room');
+    if (room) {
+      joinRoomHandler(room);
+    }
   }, []);
 
   return (
@@ -58,7 +70,7 @@ export const App = () => {
             </button>
             <button
               className='px-4 py-2 bg-indigo-700 rounded'
-              onClick={joinRoomHandler}
+              onClick={() => joinRoomHandler()}
             >
               Join Room
             </button>

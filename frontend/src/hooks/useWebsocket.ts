@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Socket, io } from 'socket.io-client';
 
 export const backendBaseUrl = import.meta.env.VITE_BACKEND_ENDPOINT as string;
+export const frontendBaseUrl = import.meta.env.VITE_FRONTEND_ENDPOINT as string;
 
 import {
   ClientToServerEvents,
