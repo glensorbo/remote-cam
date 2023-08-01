@@ -21,6 +21,7 @@ interface WebRTC {
   addAnswer: (answer: RTCSessionDescriptionInit) => void;
   addIceCandidate: (candidate: RTCIceCandidateInit) => void;
   changeSource: (stream: MediaStream) => void;
+  userLeft: () => void;
 }
 
 export const webRTC: WebRTC = {
@@ -76,10 +77,8 @@ export const webRTC: WebRTC = {
   },
   changeSource: (stream) => {
     const [videoTrack] = stream.getVideoTracks();
-    console.log(videoTrack);
 
     const [audioTrack] = stream.getAudioTracks();
-    console.log(audioTrack);
 
     const senders = webRTC.peerConnection.getSenders();
 
@@ -96,5 +95,10 @@ export const webRTC: WebRTC = {
       );
       audio?.replaceTrack(audioTrack);
     }
+  },
+  userLeft: () => {
+    const tracks = webRTC.remoteStream.getTracks();
+    tracks.forEach((track) => webRTC.remoteStream.removeTrack(track));
+    console.log('User left, removing tracks');
   },
 };

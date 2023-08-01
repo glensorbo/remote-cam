@@ -44,6 +44,12 @@ export const websocket = {
       socket.on('candidate', ({ candidate, roomId }) => {
         socket.to(roomId).emit('candidate', { type: 'candidate', candidate });
       });
+
+      socket.on('leaveRoom', (roomId) => {
+        if (roomId) {
+          socket.to(roomId).emit('userLeft');
+        }
+      });
     });
   },
 };

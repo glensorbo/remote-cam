@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { IOption } from '../interface/IOption';
 import { websocket } from '../util/websocket';
 import { webRTC } from '../util/webRTC';
-import { frontendBaseUrl } from '../hooks/useWebsocket';
+import { frontendBaseUrl } from '../util/servers';
 
 export const HostRoom: React.FC = () => {
   const [videoOptions, setVideoOptions] = useState<IOption[]>([]);

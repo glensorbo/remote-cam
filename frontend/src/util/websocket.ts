@@ -14,6 +14,7 @@ interface Websocket {
   roomId: string;
   connect: () => void;
   joinRoom: (roomId: string) => void;
+  leaveRoom: () => void;
 }
 
 export const websocket: Websocket = {
@@ -44,5 +45,12 @@ export const websocket: Websocket = {
     websocket.socket?.on('candidate', (message) => {
       webRTC.addIceCandidate(message.candidate);
     });
+
+    websocket.socket?.on('userLeft', () => {
+      webRTC.userLeft();
+    });
+  },
+  leaveRoom: () => {
+    websocket.socket?.emit('leaveRoom', websocket.roomId);
   },
 };

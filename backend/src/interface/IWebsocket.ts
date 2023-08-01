@@ -1,5 +1,6 @@
 export interface ServerToClientEvents {
   userJoined: (id: string) => void;
+  userLeft: () => void;
   message: (message: any) => void;
   offer: (message: any) => void;
   answer: (message: any) => void;
@@ -11,6 +12,7 @@ export interface ClientToServerEvents {
   offer: (data: any) => void;
   candidate: (data: any) => void;
   answer: (data: any) => void;
+  leaveRoom: (roomId: string) => void;
 }
 
 export interface InterServerEvents {

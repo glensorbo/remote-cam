@@ -43,6 +43,12 @@ export const App = () => {
     if (room) {
       joinRoomHandler(room);
     }
+
+    window.addEventListener('beforeunload', websocket.leaveRoom);
+
+    return () => {
+      window.removeEventListener('beforeunload', websocket.leaveRoom);
+    };
   }, []);
 
   return (
